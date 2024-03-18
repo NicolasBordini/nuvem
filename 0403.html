@@ -1,66 +1,114 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>index</title>
-  <link href="style.css" rel="stylesheet" type="text/css" />
-<script>
-
-  function buscarEnderecoNoViaCEP() {
-    var componentePesquisaCep = document.getElementById("pesquisaCep");
-    alert("O cep digitado é:" + componentePesquisaCep.value);
-
-    alert("funcionou");
-    const url = 'https://viacep.com.br/';
-
-     //Cria um elemento javascript.
-     var script = document.createElement('script');
-
-//Sincroniza com o callback.
-script.src = 'https://viacep.com.br/ws/'+ componentePesquisaCep.value + '/json/?callback=meu_callback';
-
-//Insere script no documento e carrega o conteúdo.
-document.body.appendChild(script);
-
-  }
-  function meu_callback(conteudo) {
-        if (!("erro" in conteudo)) {
-            //Atualiza os campos com os valores.
-            document.getElementById('rua').value=(conteudo.logradouro);
-            document.getElementById('bairro').value=(conteudo.bairro);
-            document.getElementById('cidade').value=(conteudo.localidade);
-            document.getElementById('uf').value=(conteudo.uf);
-            document.getElementById('ibge').value=(conteudo.ibge);
-        } //end if.
-        else {
-            //CEP não Encontrado.
-            limpa_formulário_cep();
-            alert("CEP não encontrado.");
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Consulta CNPJ</title>
+  <style>
+    body {
+      font-family: sans-serif;
     }
 
-</script>
+    #container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    #form {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 20px;
+    }
+
+    #inputCNPJ {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    #button {
+      padding: 10px 20px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #resultado {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 20px;
+    }
+
+    #pre {
+      white-space: pre;
+    }
+  </style>
 </head>
 
 <body>
-  <form method="get" action=".">
-  <label>Cep:
-  <input name="pesquisaCep" id="pesquisaCep" type="number">
-  <input type="button" name="Pesquisar" onclick="buscarEnderecoNoViaCEP()" value="Pesquisar">
-  <br />
-  <label>Rua:
-    <input name="rua" type="text" id="rua" size="60" /></label><br />
-    <label>Bairro:
-    <input name="bairro" type="text" id="bairro" size="40" /></label><br />
-    <label>Cidade:
-    <input name="cidade" type="text" id="cidade" size="40" /></label><br />
-    <label>Estado:
-    <input name="uf" type="text" id="uf" size="2" /></label><br />
-    <label>IBGE:
-    <input name="ibge" type="text" id="ibge" size="8" /></label><br />
-  </form>
+  <div id="container">
+    <h1>Consulta CNPJ</h1>
+
+    <form id="form" action="#">
+      <label for="inputCNPJ">CNPJ:</label>
+      <input type="text" id="inputCNPJ" placeholder="Digite o CNPJ">
+      <button id="button">Consultar</button>
+    </form>
+
+    <div id="resultado"></div>
+  </div>
+
+  <script>
+    const inputCNPJ = document.getElementById('inputCNPJ');
+    const button = document.getElementById('button');
+    const resultado = document.getElementById('resultado');
+
+    button.addEventListener('click', () => {
+      const cnpj = inputCNPJ.value.replace(/\D/g, '');
+
+      // Cria a URL da API
+      const urlAPI = `https://cors-anywhere.herokuapp.com/https://receitaws.com.br/v1/cnpj/${cnpj}`;
+
+      // Faz a requisição usando Cornify
+      fetch(urlAPI)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+          resultado.innerHTML = `Nome fantasia: ${data.fantasia}<br>
+          Bairro: ${data.bairro}<br>
+          Status: ${data.status}<br>
+          UltimaAtualizacao ${data.ultima_atualizacao}<br>
+          cnpj ${data.cnpj}<br> 
+          Tipo ${data.tipo}<br>
+          Porte ${data.porte}<br>
+          Nome ${data.nome}<br>
+          Abertura ${data.abertura}<br>
+          Atividade Principal ${data.atividade_principal[0].text}<br>
+          Atividades Secundarias ${data.atividades_secundarias[0].text}<br>
+          Natureza Juridica ${data.natureza_juridica}<br>
+          Logradouro ${data.logradouro}<br>
+          Numero ${data.numero}<br>
+          Complemento ${data.complemento}<br>
+          CEP ${data.cep}<br>
+          Bairro ${data.bairro}<br>
+          Municipio ${data.municipio}<br>
+          UF ${data.uf}<br>
+          Telefone ${data.telefone}<br>
+          Email ${data.email}<br>
+          Capital Social ${data.capital_social}<br>                                   `;
+        })
+        .catch(error => {
+          console.error('Erro na requisição:', error);
+          resultado.textContent = 'Erro ao consultar CNPJ.';
+        });
+    });
+
+  </script>
 </body>
 
 </html>
